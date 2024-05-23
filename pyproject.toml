@@ -14,11 +14,11 @@ pydantic-settings = "^2.2.1"
 asyncmy = "^0.2.9"
 tortoise-orm = "^0.20.1"
 aerich = "^0.7.2"
+pytest = "^8.2.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.2.1"
-pre-commit = "^3.7.1"
 
+pre-commit = "^3.7.1"
 
 [tool.aerich]
 tortoise_orm = "toolhunt.db.TORTOISE_ORM"

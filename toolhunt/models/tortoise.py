@@ -1,5 +1,6 @@
 from tortoise import fields, models
 
+
 class Tool(models.Model):
     name = fields.CharField(max_length=255, pk=True)
     title = fields.CharField(max_length=255)
@@ -12,4 +13,3 @@ class Tool(models.Model):
     class Meta:
         table = "tool"
         charset = "binary"
-

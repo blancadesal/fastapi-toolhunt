@@ -13,7 +13,8 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=mysql://user:mypassword@db:3306/mydatabase?charset=utf8mb4
+      - DATABASE_URL=mysql://user:mypassword@db:3306/web_dev?charset=utf8mb4
+      - DATABASE_TEST_URL=mysql://user:mypassword@db:3306/web_test?charset=utf8mb4
     command: uvicorn toolhunt.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     depends_on:
       db:
@@ -27,7 +28,7 @@ services:
       - MARIADB_USER=user
       - MARIADB_PASSWORD=mypassword
       - MARIADB_ROOT_PASSWORD=rootpassword
-      - MARIADB_DATABASE=mydatabase
+      - MARIADB_DATABASE=web_dev
     volumes:
       - dbdata:/var/lib/mariadb/data/
     ports:
