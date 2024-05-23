@@ -15,6 +15,9 @@ services:
       - TESTING=0
       - DATABASE_URL=mysql://user:mypassword@db:3306/mydatabase?charset=utf8mb4
     command: uvicorn toolhunt.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     container_name: mariadb
@@ -29,6 +32,19 @@ services:
       - dbdata:/var/lib/mariadb/data/
     ports:
       - 3306
+    # https://mariadb.com/kb/en/using-healthcheck-sh/
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      timeout: 30s
 
 volumes:
   dbdata:
