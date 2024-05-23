@@ -1,26 +1,25 @@
-import os
+import logging
 
-from fastapi import FastAPI, Depends
-from tortoise.contrib.fastapi import register_tortoise
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
-from toolhunt.config import get_settings, Settings
-
-
-app = FastAPI()
-
-register_tortoise(
-    app,
-    db_url=os.getenv("DATABASE_URL"),
-    modules={"models": ["toolhunt.models.tortoise"]},
-    generate_schemas=False,
-    add_exception_handlers=True,
-)
+from toolhunt.api import ping
+from toolhunt.db import init_db
 
 
-@app.get("/ping")
-async def pong(settings: Settings = Depends(get_settings)):
-    return {
-        "ping": "pong!",
-        "environment": settings.environment,
-        "testing": settings.testing,
-    }
+log = logging.getLogger("uvicorn")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    log.info("Starting up...")
+    init_db(app)
+    yield
+    log.info("Shutting down...")
+
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
+    app.include_router(ping.router, prefix="/api/v1")
+    return app
+
+app = create_app()
