@@ -1,4 +1,4 @@
-.PHONY: help init-db migrate seed start stop restart clean lint test logs db-shell status
+.PHONY: help init-db migrations migrate seed start stop restart clean lint test logs db-shell status
 
 help:  ## Show this help message
 	@echo "Make targets:"
