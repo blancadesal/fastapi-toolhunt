@@ -31,8 +31,8 @@ seed:  ## Seed the database
 db-shell:  ## Access the database shell
 	@docker-compose exec db mysql -u root -p
 
-lint:  ## Run linting using tox
-	@docker-compose exec fastapi-web tox
+lint:  ## Run linting using pre-commit
+	@poetry run pre-commit run --all-files
 
 test:  ## Run tests using pytest
 	@docker-compose exec fastapi-web python -m pytest
