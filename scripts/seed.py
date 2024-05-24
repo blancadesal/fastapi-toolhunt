@@ -1,6 +1,12 @@
+import sys
+import os
 import json
-
 from tortoise import Tortoise, run_async
+from tortoise.exceptions import IntegrityError
+
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from toolhunt.models.tortoise import Tool, Field, CompletedTask
 from toolhunt.db import TORTOISE_ORM
 
@@ -18,23 +24,33 @@ async def seed():
 
     # Insert tool data
     for tool_data in data[0]["tool_data"]:
-        await Tool.create(
-            name=tool_data["name"],
-            title=tool_data["title"],
-            description=tool_data["description"],
-            url=tool_data["url"],
-            last_updated=tool_data["modified_date"],
-        )
+        try:
+            await Tool.get_or_create(
+                name=tool_data["name"],
+                defaults={
+                    "title": tool_data["title"],
+                    "description": tool_data["description"],
+                    "url": tool_data["url"],
+                    "last_updated": tool_data["modified_date"],
+                },
+            )
+        except IntegrityError:
+            print(f"Tool {tool_data['name']} already exists.")
 
     # Insert completed task data
     for task_data in data[1]["task_data"]:
-        await CompletedTask.create(
-            tool_name=task_data["tool_name"],
-            tool_title=task_data["tool_title"],
-            field=task_data["field"],
-            user=task_data["user"],
-            completed_date=task_data["completed_date"],
-        )
+        try:
+            await CompletedTask.get_or_create(
+                tool_name=task_data["tool_name"],
+                tool_title=task_data["tool_title"],
+                field=task_data["field"],
+                user=task_data["user"],
+                defaults={"completed_date": task_data["completed_date"]},
+            )
+        except IntegrityError:
+            print(
+                f"CompletedTask for tool {task_data['tool_name']} and field {task_data['field']} already exists."
+            )
 
     # Load field data from fields.json
     with open("tests/fixtures/fields.json", "r") as f:
@@ -42,15 +58,24 @@ async def seed():
 
     # Insert field data
     for field_data in fields_data:
-        await Field.create(
-            name=field_data["name"],
-            description=field_data["description"],
-            input_options=json.dumps(field_data.get("input_options", None)),
-            pattern=field_data.get("pattern", None),
-        )
+        try:
+            await Field.get_or_create(
+                name=field_data["name"],
+                defaults={
+                    "description": field_data["description"],
+                    "input_options": json.dumps(field_data.get("input_options", None)),
+                    "pattern": field_data.get("pattern", None),
+                },
+            )
+        except IntegrityError:
+            print(f"Field {field_data['name']} already exists.")
 
     await Tortoise.close_connections()
 
 
-if __name__ == "__main__":
+def main():
     run_async(seed())
+
+
+if __name__ == "__main__":
+    main()

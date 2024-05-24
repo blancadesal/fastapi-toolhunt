@@ -43,7 +43,7 @@ class Task(models.Model):
 
 
 class CompletedTask(models.Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(pk=True, generated=True)  # Ensure id is auto-incremented
     tool_name = fields.CharField(max_length=255)
     tool_title = fields.CharField(max_length=255)
     field = fields.CharField(max_length=80)
