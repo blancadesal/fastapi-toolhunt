@@ -30,7 +30,9 @@ class Field(models.Model):
 
 class Task(models.Model):
     id = fields.IntField(pk=True)
-    tool_name = fields.ForeignKeyField("models.Tool", related_name="tasks", on_delete=fields.CASCADE)
+    tool_name = fields.ForeignKeyField(
+        "models.Tool", related_name="tasks", on_delete=fields.CASCADE
+    )
     field_name = fields.ForeignKeyField("models.Field", related_name="tasks")
     last_attempted = fields.DatetimeField(null=True)
     last_updated = fields.DatetimeField()
