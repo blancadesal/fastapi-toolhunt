@@ -20,7 +20,7 @@ web-logs:  ## View logs from the web service
 	@docker-compose logs -f fastapi-web
 
 init-db:  ## Initialize the database
-	@docker-compose exec fastapi-web python toolhunt/db.py
+	@docker-compose exec fastapi-web aerich init-db
 
 migrations:  ## Generate migration files
 	@docker-compose exec fastapi-web aerich migrate
