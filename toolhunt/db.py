@@ -25,7 +25,7 @@ def init_db(app: FastAPI) -> None:
         app,
         db_url=os.getenv("DATABASE_URL"),
         modules={"models": ["toolhunt.models.tortoise"]},
-        generate_schemas=True,
+        generate_schemas=False,
         add_exception_handlers=True,
     )
 
