@@ -22,6 +22,9 @@ web-logs:  ## View logs from the web service
 init-db:  ## Initialize the database
 	@docker-compose exec fastapi-web python toolhunt/db.py
 
+migrations:  ## Generate migration files
+	@docker-compose exec fastapi-web aerich migrate
+
 migrate:  ## Perform database migrations
 	@docker-compose exec fastapi-web aerich upgrade
 
@@ -29,7 +32,7 @@ seed:  ## Seed the database
 	@docker-compose exec fastapi-web python scripts/seed.py
 
 db-shell:  ## Access the database shell
-	@docker-compose exec db mysql -u root -p
+	@docker-compose exec db sh -c 'mysql -u $$MARIADB_USER -p$$MARIADB_PASSWORD'
 
 lint:  ## Run linting using pre-commit
 	@poetry run pre-commit run --all-files
