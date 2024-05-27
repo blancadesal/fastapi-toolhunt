@@ -25,11 +25,12 @@ CREATE TABLE IF NOT EXISTS `tool` (
     `last_updated` DATETIME(6) NOT NULL
 ) CHARACTER SET utf8mb4;
 CREATE TABLE IF NOT EXISTS `task` (
-    `id` INT NOT NULL  PRIMARY KEY,
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `last_attempted` DATETIME(6),
-    `last_updated` DATETIME(6) NOT NULL,
+    `last_updated` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
     `field_name_id` VARCHAR(80) NOT NULL,
     `tool_name_id` VARCHAR(255) NOT NULL,
+    UNIQUE KEY `uid_task_tool_na_1d7b4b` (`tool_name_id`, `field_name_id`),
     CONSTRAINT `fk_task_field_f0943fa6` FOREIGN KEY (`field_name_id`) REFERENCES `field` (`name`) ON DELETE CASCADE,
     CONSTRAINT `fk_task_tool_e47144f8` FOREIGN KEY (`tool_name_id`) REFERENCES `tool` (`name`) ON DELETE CASCADE
 ) CHARACTER SET utf8mb4;
