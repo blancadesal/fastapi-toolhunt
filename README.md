@@ -75,7 +75,6 @@ Before you begin, ensure you have the following installed on your machine:
 
 ### Some Makefile Commands
 
-
 - **`make start`**: Start the Docker containers.
 - **`make stop`**: Stop the Docker containers.
 - **`make restart`**: Restart the Docker containers.
