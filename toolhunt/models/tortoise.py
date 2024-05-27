@@ -6,7 +6,7 @@ class Tool(models.Model):
     title = fields.CharField(max_length=255, null=False)
     description = fields.TextField(null=False)
     url = fields.CharField(max_length=2047, null=False)
-    last_updated = fields.DatetimeField(null=False)
+    last_updated = fields.DatetimeField(auto_now=True)
 
     tasks: fields.ReverseRelation["Task"]
 

@@ -11,15 +11,15 @@ import datetime
 from dataclasses import dataclass
 
 from tortoise import run_async
+from tortoise.exceptions import IntegrityError
 
-from toolhunt.models.tortoise import Tool, Task
+from toolhunt.models.tortoise import Field, Tool, Task
 from toolhunt.api.utils import logger, ToolhubClient
 from toolhunt.config import get_settings
 
 settings = get_settings()
 toolhub_client = ToolhubClient(settings.toolhub_api_endpoint)
 
-# Transform
 
 # Parameters
 ANNOTATIONS = {
@@ -83,17 +83,13 @@ def clean_tool_data(tool_data):
     return tools
 
 
-# Load
-
-
-async def upsert_tool(tool, timestamp):
+async def upsert_tool(tool):
     """Inserts a tool in the Tool table if it doesn't exist, and updates it if it does."""
     await Tool.update_or_create(
         defaults={
             "title": tool.title,
             "description": tool.description,
             "url": tool.url,
-            "last_updated": timestamp,
         },
         name=tool.name,
     )
@@ -101,55 +97,77 @@ async def upsert_tool(tool, timestamp):
 
 async def remove_stale_tools(timestamp):
     """Removes expired tools from the Tool table."""
-    await Tool.filter(last_updated__ne=timestamp).delete()
+    logger.info(f"Removing stale tools with last_updated < {timestamp}")
+    stale_tools = await Tool.filter(last_updated__lt=timestamp)
+    for tool in stale_tools:
+        logger.info(
+            f"Removing tool: name={tool.name}, last_updated={tool.last_updated}"
+        )
+    await Tool.filter(last_updated__lt=timestamp).delete()
 
 
 async def update_tool_table(tools, timestamp):
     """Upserts tool records and removes stale tools"""
     for tool in tools:
-        await upsert_tool(tool, timestamp)
+        await upsert_tool(tool)
     await remove_stale_tools(timestamp)
 
 
-async def insert_or_update_task(tool_name, field, timestamp):
+async def upsert_task(tool, field):
     """Inserts a task in the Task table if it doesn't exist or updates a timestamp."""
-    task, created = await Task.update_or_create(
-        defaults={"last_updated": timestamp},
-        tool_name=tool_name,
+    await Task.update_or_create(
+        tool_name=tool,
         field_name=field,
+    )
+    logger.info(
+        f"Task created or already exists: tool_name={tool.name}, field_name={field.name}"
     )
 
 
 async def remove_stale_tasks(timestamp):
     """Removes expired tasks from the Task table."""
-    await Task.filter(last_updated__ne=timestamp).delete()
+    logger.info(f"Removing stale tasks with last_updated < {timestamp}")
+    stale_tasks = await Task.filter(last_updated__lt=timestamp).all()
+    for task in stale_tasks:
+        logger.info(
+            f"Removing task: tool_name={task.tool_name_id}, field_name={task.field_name_id}, last_updated={task.last_updated}"
+        )
+    await Task.filter(last_updated__lt=timestamp).delete()
 
 
 async def update_task_table(tools, timestamp):
     """Inserts task records"""
     for tool in tools:
         for field in tool.missing_annotations:
-            await insert_or_update_task(tool.name, field, timestamp)
+            try:
+                tool_instance = await Tool.get(name=tool.name)
+                field_instance = await Field.get(name=field)
+                await upsert_task(tool_instance, field_instance)
+            except IntegrityError:
+                print(f"Task for tool {tool.name} and field {field} already exists.")
+
     await remove_stale_tasks(timestamp)
 
 
 # Pipeline
 # This will populate the db if empty, or update all tool and task records if not.
-async def run_pipeline():
-    # Extract
+async def run_pipeline(test_data=None):
     try:
+        # Extract
         logger.info("Starting database update...")
-        tools_raw_data = toolhub_client.get_all()
-        logger.info("Raw data received.  Cleaning...")
+        tools_raw_data = test_data if test_data else toolhub_client.get_all()
+        logger.info("Raw data received. Cleaning...")
         # Transform
         tools_clean_data = clean_tool_data(tools_raw_data)
-        logger.info("Raw data cleaned.  Updating tools..")
+        logger.info("Raw data cleaned. Updating tools..")
         # Load
-        timestamp = datetime.datetime.now(datetime.timezone.utc)
+        timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
         await update_tool_table(tools_clean_data, timestamp)
-        logger.info("Tools updated.  Updating tasks...")
+        logger.info("Tools updated. Updating tasks...")
         await update_task_table(tools_clean_data, timestamp)
-        logger.info("Tasks updated.  Database update completed.")
+        logger.info("Tasks updated. Database update completed.")
     except Exception as err:
         logger.error(f"{err.args}")
 

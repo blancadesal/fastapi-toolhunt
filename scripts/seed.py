@@ -1,5 +1,4 @@
 import sys
-import datetime
 import os
 import json
 from tortoise import Tortoise, run_async
@@ -8,10 +7,9 @@ from tortoise.exceptions import IntegrityError
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from toolhunt.models.tortoise import Tool, Field, Task, CompletedTask
+from toolhunt.models.tortoise import Field, CompletedTask
 from toolhunt.db import TORTOISE_ORM
-
-from scripts.update_db import clean_tool_data
+from update_db import run_pipeline
 
 
 async def init():
@@ -21,8 +19,8 @@ async def init():
 async def seed():
     await init()
 
-    # Load field data from fields.json
-    with open("tests/fixtures/fields.json", "r") as f:
+    # Load field data
+    with open("tests/fixtures/field_data.json", "r") as f:
         fields_data = json.load(f)
 
     # Insert field data
@@ -41,47 +39,18 @@ async def seed():
 
     await Tortoise.close_connections()
 
-    # Load tool data from data.json
-    with open("tests/fixtures/data.json", "r") as f:
-        data = json.load(f)
+    # Load tool data and create tasks
+    with open("tests/fixtures/tool_data.json", "r") as f:
+        tool_data = json.load(f)
 
-    # Insert tool data
-    for tool_data in data[0]["tool_data"]:
-        try:
-            await Tool.get_or_create(
-                name=tool_data["name"],
-                defaults={
-                    "title": tool_data["title"],
-                    "description": tool_data["description"],
-                    "url": tool_data["url"],
-                    "last_updated": tool_data["modified_date"],
-                },
-            )
-        except IntegrityError:
-            print(f"Tool {tool_data['name']} already exists.")
+    await run_pipeline(test_data=tool_data)
 
-    # Insert missing annotations as tasks
-    timestamp = datetime.datetime.now(datetime.timezone.utc)
-    clean_data = clean_tool_data(data[0]["tool_data"])
-
-    for tool in clean_data:
-        for field in tool.missing_annotations:
-            try:
-                tool_instance = await Tool.get(name=tool.name)
-                field_instance = await Field.get(name=field)
-                await Task.get_or_create(
-                    tool_name=tool_instance,
-                    field_name=field_instance,
-                    defaults={"last_updated": timestamp},
-                )
-                print(
-                    f"Task created or already exists: tool_name={tool.name}, field_name={field}"
-                )
-            except IntegrityError:
-                print(f"Task for tool {tool.name} and field {field} already exists.")
+    # Load completed task data
+    with open("tests/fixtures/completed_task_data.json", "r") as f:
+        completed_task_data = json.load(f)
 
     # Insert completed task data
-    for task_data in data[1]["task_data"]:
+    for task_data in completed_task_data:
         try:
             await CompletedTask.get_or_create(
                 tool_name=task_data["tool_name"],
