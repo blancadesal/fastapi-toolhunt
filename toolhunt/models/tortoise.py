@@ -2,11 +2,11 @@ from tortoise import fields, models
 
 
 class Tool(models.Model):
-    name = fields.CharField(max_length=255, pk=True)
-    title = fields.CharField(max_length=255)
-    description = fields.TextField()
-    url = fields.CharField(max_length=2047)
-    last_updated = fields.DatetimeField()
+    name = fields.CharField(max_length=255, pk=True, unique=True)
+    title = fields.CharField(max_length=255, null=False)
+    description = fields.TextField(null=False)
+    url = fields.CharField(max_length=2047, null=False)
+    last_updated = fields.DatetimeField(null=False)
 
     tasks: fields.ReverseRelation["Task"]
 
@@ -16,8 +16,8 @@ class Tool(models.Model):
 
 
 class Field(models.Model):
-    name = fields.CharField(max_length=80, pk=True)
-    description = fields.CharField(max_length=2047)
+    name = fields.CharField(max_length=80, pk=True, unique=True)
+    description = fields.CharField(max_length=2047, null=False)
     input_options = fields.CharField(max_length=2047, null=True)
     pattern = fields.CharField(max_length=320, null=True)
 
@@ -29,26 +29,27 @@ class Field(models.Model):
 
 
 class Task(models.Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(pk=True, generated=True)
     tool_name = fields.ForeignKeyField(
         "models.Tool", related_name="tasks", on_delete=fields.CASCADE
     )
     field_name = fields.ForeignKeyField("models.Field", related_name="tasks")
     last_attempted = fields.DatetimeField(null=True)
-    last_updated = fields.DatetimeField()
+    last_updated = fields.DatetimeField(auto_now=True)
 
     class Meta:
         table = "task"
+        unique_together = ("tool_name", "field_name")
         charset = "binary"
 
 
 class CompletedTask(models.Model):
     id = fields.IntField(pk=True, generated=True)  # Ensure id is auto-incremented
-    tool_name = fields.CharField(max_length=255)
-    tool_title = fields.CharField(max_length=255)
-    field = fields.CharField(max_length=80)
-    user = fields.CharField(max_length=255)
-    completed_date = fields.DatetimeField()
+    tool_name = fields.CharField(max_length=255, null=False)
+    tool_title = fields.CharField(max_length=255, null=False)
+    field = fields.CharField(max_length=80, null=False)
+    user = fields.CharField(max_length=255, null=False)
+    completed_date = fields.DatetimeField(null=False)
 
     class Meta:
         table = "completed_task"
