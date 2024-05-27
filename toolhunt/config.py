@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     environment: str = "dev"  #  equivalent to str = os.getenv("ENVIRONMENT", "dev")
     testing: bool = bool(0)
     database_url: AnyUrl = None
+    toolhub_api_endpoint: AnyUrl = None
 
 
 @lru_cache()
