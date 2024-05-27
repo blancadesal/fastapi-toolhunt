@@ -1,4 +1,4 @@
-.PHONY: help init-db migrations migrate seed start stop restart clean lint test logs db-shell status
+.PHONY: help init-db migrations migrate seed start stop restart clean lint test logs db-shell status web-shell
 
 help:  ## Show this help message
 	@echo "Make targets:"
@@ -33,6 +33,9 @@ seed:  ## Seed the database
 
 db-shell:  ## Access the database shell
 	@docker-compose exec db sh -c 'mysql -u $$MARIADB_USER -p$$MARIADB_PASSWORD'
+
+web-shell:  ## Access the web shell
+	@docker-compose exec fastapi-web sh
 
 lint:  ## Run linting using pre-commit
 	@poetry run pre-commit run --all-files
