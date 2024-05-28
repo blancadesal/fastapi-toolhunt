@@ -14,13 +14,7 @@ async def get_tasks_from_db() -> List[TaskSchema]:
     tasks = await Task.all().prefetch_related("tool_name", "field_name")
     random_tasks = random.sample(tasks, min(len(tasks), 10))
     return [
-        TaskSchema(
-            id=task.id,
-            tool_name=task.tool_name.name,
-            tool=task.tool_name,
-            field_name=task.field_name.name,
-            field=task.field_name,
-        )
+        TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
         for task in random_tasks
     ]
 

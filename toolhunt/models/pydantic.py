@@ -13,9 +13,9 @@ class FieldSchema(BaseModel):
 
     @field_validator("input_options", mode="before")
     def serialize_input_options(cls, v):
-        """Convert input_options from JSON string to dict."""
+        """Convert input_options from JSON string to dict or return None."""
         if v in (None, "null"):
-            return {}
+            return None
         if isinstance(v, str):
             try:
                 return json.loads(v)
@@ -41,9 +41,7 @@ class TaskSchema(BaseModel):
     id: Optional[int] = PydanticField(
         None, alias="id", description="The ID of the task"
     )
-    tool_name: str
     tool: Optional[ToolSchema] = None
-    field_name: str
     field: Optional[FieldSchema] = None
 
     class Config:
