@@ -1,11 +1,20 @@
 import json
+from pathlib import Path
 from tortoise import Tortoise, run_async
 from tortoise.exceptions import IntegrityError, DoesNotExist
 
 from toolhunt.models.tortoise import Tool, Field, CompletedTask
 from toolhunt.db import TORTOISE_ORM
+from scripts.update_db import run_pipeline
 from toolhunt.api.utils import logger
-from update_db import run_pipeline
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "tests" / "fixtures"
+
+FIELD_DATA_PATH = DATA_DIR / "field_data.json"
+TOOL_DATA_PATH = DATA_DIR / "tool_data.json"
+COMPLETED_TASK_DATA_PATH = DATA_DIR / "completed_task_data.json"
 
 
 async def init():
@@ -15,7 +24,7 @@ async def init():
 
 async def insert_fields():
     """Insert field data from a JSON file into the database."""
-    with open("tests/fixtures/field_data.json", "r") as f:
+    with FIELD_DATA_PATH.open("r") as f:
         fields_data = json.load(f)
 
     for field_data in fields_data:
@@ -34,7 +43,7 @@ async def insert_fields():
 
 async def insert_tools():
     """Insert tool data from a JSON file and create tasks."""
-    with open("tests/fixtures/tool_data.json", "r") as f:
+    with TOOL_DATA_PATH.open("r") as f:
         tool_data = json.load(f)
 
     await run_pipeline(test_data=tool_data)
@@ -44,7 +53,7 @@ async def insert_completed_tasks():
     """Insert completed task data from a JSON file into the database."""
     await init()
 
-    with open("tests/fixtures/completed_task_data.json", "r") as f:
+    with COMPLETED_TASK_DATA_PATH.open("r") as f:
         completed_task_data = json.load(f)
 
     for task_data in completed_task_data:
@@ -81,9 +90,5 @@ async def seed():
     await Tortoise.close_connections()
 
 
-def main():
-    run_async(seed())
-
-
 if __name__ == "__main__":
-    main()
+    run_async(seed())
