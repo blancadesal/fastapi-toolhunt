@@ -3,8 +3,8 @@ import os
 import pytest
 from starlette.testclient import TestClient
 
+from toolhunt.config import Settings, get_settings
 from toolhunt.main import create_app
-from toolhunt.config import get_settings, Settings
 
 
 def get_settings_override():

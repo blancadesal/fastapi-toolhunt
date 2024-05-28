@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from toolhunt.config import get_settings, Settings
-
+from toolhunt.config import Settings, get_settings
 
 router = APIRouter()
 

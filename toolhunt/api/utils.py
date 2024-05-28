@@ -3,7 +3,6 @@ import logging
 import httpx
 from fastapi import HTTPException
 
-
 logging.basicConfig(
     filename="db_update.log",
     format="%(asctime)s:%(levelname)s:%(message)s",

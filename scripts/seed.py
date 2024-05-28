@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
-from tortoise import Tortoise, run_async
-from tortoise.exceptions import IntegrityError, DoesNotExist
 
-from toolhunt.models.tortoise import Tool, Field, CompletedTask
-from toolhunt.db import TORTOISE_ORM
+from tortoise import Tortoise, run_async
+from tortoise.exceptions import DoesNotExist, IntegrityError
+
 from scripts.update_db import run_pipeline
 from toolhunt.api.utils import logger
-
+from toolhunt.db import TORTOISE_ORM
+from toolhunt.models.tortoise import CompletedTask, Field, Tool
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "tests" / "fixtures"

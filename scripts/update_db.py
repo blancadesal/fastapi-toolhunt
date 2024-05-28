@@ -13,9 +13,9 @@ from dataclasses import dataclass
 from tortoise import run_async
 from tortoise.exceptions import IntegrityError
 
-from toolhunt.models.tortoise import Field, Tool, Task
-from toolhunt.api.utils import logger, ToolhubClient
+from toolhunt.api.utils import ToolhubClient, logger
 from toolhunt.config import get_settings
+from toolhunt.models.tortoise import Field, Task, Tool
 
 settings = get_settings()
 toolhub_client = ToolhubClient(settings.toolhub_api_endpoint)

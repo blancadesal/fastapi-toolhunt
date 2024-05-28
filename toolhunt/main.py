@@ -1,11 +1,10 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
 
 from toolhunt.api import ping
 from toolhunt.db import init_db
-
 
 log = logging.getLogger("uvicorn")
 

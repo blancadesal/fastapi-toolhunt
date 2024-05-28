@@ -24,6 +24,9 @@ tortoise_orm = "toolhunt.db.TORTOISE_ORM"
 location = "./migrations"
 src_folder = "./."
 
+[tool.ruff.lint]
+extend-select = ["I"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
