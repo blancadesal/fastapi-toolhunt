@@ -78,7 +78,7 @@ def clean_tool_data(tool_data):
             missing_annotations=get_missing_annotations(tool),
             deprecated=is_deprecated(tool),
         )
-        if not t.deprecated and not t.is_completed:
+        if not t.deprecated:  # and not t.is_completed:
             tools.append(t)
     return tools
 

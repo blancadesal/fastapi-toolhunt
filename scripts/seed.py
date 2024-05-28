@@ -2,12 +2,11 @@ import sys
 import os
 import json
 from tortoise import Tortoise, run_async
-from tortoise.exceptions import IntegrityError
-
+from tortoise.exceptions import IntegrityError, DoesNotExist
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from toolhunt.models.tortoise import Field, CompletedTask
+from toolhunt.models.tortoise import Tool, Field, CompletedTask
 from toolhunt.db import TORTOISE_ORM
 from update_db import run_pipeline
 
@@ -45,6 +44,8 @@ async def seed():
 
     await run_pipeline(test_data=tool_data)
 
+    await init()  # Reinitialize connection for completed tasks
+
     # Load completed task data
     with open("tests/fixtures/completed_task_data.json", "r") as f:
         completed_task_data = json.load(f)
@@ -52,10 +53,12 @@ async def seed():
     # Insert completed task data
     for task_data in completed_task_data:
         try:
+            tool = await Tool.get(name=task_data["tool_name"])
+            field = await Field.get(name=task_data["field"])
             await CompletedTask.get_or_create(
-                tool_name=task_data["tool_name"],
+                tool=tool,
                 tool_title=task_data["tool_title"],
-                field=task_data["field"],
+                field=field,
                 user=task_data["user"],
                 defaults={"completed_date": task_data["completed_date"]},
             )
@@ -63,6 +66,12 @@ async def seed():
             print(
                 f"CompletedTask for tool {task_data['tool_name']} and field {task_data['field']} already exists."
             )
+        except DoesNotExist:
+            print(
+                f"Tool or Field does not exist for CompletedTask with tool {task_data['tool_name']} and field {task_data['field']}."
+            )
+
+    await Tortoise.close_connections()
 
 
 def main():
