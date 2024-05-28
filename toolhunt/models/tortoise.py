@@ -9,6 +9,7 @@ class Tool(models.Model):
     last_updated = fields.DatetimeField(auto_now=True)
 
     tasks: fields.ReverseRelation["Task"]
+    completed_tasks: fields.ReverseRelation["CompletedTask"]
 
     class Meta:
         table = "tool"
@@ -22,6 +23,7 @@ class Field(models.Model):
     pattern = fields.CharField(max_length=320, null=True)
 
     tasks: fields.ReverseRelation["Task"]
+    completed_tasks: fields.ReverseRelation["CompletedTask"]
 
     class Meta:
         table = "field"
@@ -45,9 +47,19 @@ class Task(models.Model):
 
 class CompletedTask(models.Model):
     id = fields.IntField(pk=True, generated=True)  # Ensure id is auto-incremented
-    tool_name = fields.CharField(max_length=255, null=False)
+    tool = fields.ForeignKeyField(
+        "models.Tool",
+        related_name="completed_tasks",
+        on_delete=fields.SET_NULL,
+        null=True,
+    )
     tool_title = fields.CharField(max_length=255, null=False)
-    field = fields.CharField(max_length=80, null=False)
+    field = fields.ForeignKeyField(
+        "models.Field",
+        related_name="completed_tasks",
+        on_delete=fields.SET_NULL,
+        null=True,
+    )
     user = fields.CharField(max_length=255, null=False)
     completed_date = fields.DatetimeField(null=False)
 
