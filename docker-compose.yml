@@ -16,6 +16,7 @@ services:
       - DATABASE_URL=mysql://user:mypassword@db:3306/web_dev?charset=utf8mb4
       - DATABASE_TEST_URL=mysql://user:mypassword@db:3306/web_test?charset=utf8mb4
       - TOOLHUB_API_ENDPOINT=https://toolhub-demo.wmcloud.org/api/tools/
+      - PYTHONPATH=/app
     command: uvicorn toolhunt.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
     depends_on:
       db:
