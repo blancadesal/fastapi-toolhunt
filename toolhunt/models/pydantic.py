@@ -11,19 +11,20 @@ class FieldSchema(BaseModel):
     input_options: Optional[Dict] = None
     pattern: Optional[str] = None
 
-    @field_validator("input_options", pre=True, always=True)
+    @field_validator("input_options", mode="before")
     def serialize_input_options(cls, v):
-        """Convert input_options from bytes obj to dict."""
-        if v and not isinstance(v, dict):
+        """Convert input_options from JSON string to dict."""
+        if v in (None, "null"):
+            return {}
+        if isinstance(v, str):
             try:
-                input_options = v.decode().replace("'", '"')
-                return json.loads(input_options)
-            except Exception as e:
+                return json.loads(v)
+            except json.JSONDecodeError as e:
                 print(f"An error occurred: {e}")
         return v
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ToolSchema(BaseModel):
@@ -33,7 +34,7 @@ class ToolSchema(BaseModel):
     url: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TaskSchema(BaseModel):
@@ -46,4 +47,4 @@ class TaskSchema(BaseModel):
     field: Optional[FieldSchema] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
