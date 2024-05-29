@@ -36,11 +36,11 @@ async def get_tasks_from_db(
     tasks = await query
     random_tasks = random.sample(tasks, min(len(tasks), 10))
 
-    if settings.environment != "dev":
-        # Update last_attempted field
-        for task in random_tasks:
-            task.last_attempted = datetime.now()
-            await task.save()
+    # Update last_attempted and times_attempted fields
+    for task in random_tasks:
+        task.last_attempted = datetime.now()
+        task.times_attempted += 1
+        await task.save(update_fields=["last_attempted", "times_attempted"])
 
     return [
         TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
@@ -58,9 +58,10 @@ async def get_task_from_db(task_id: int) -> Optional[TaskSchema]:
         )
 
     task = await query.first()
-    if task and settings.environment != "dev":
+    if task:
         task.last_attempted = datetime.now()
-        await task.save()
+        task.times_attempted += 1
+        await task.save(update_fields=["last_attempted", "times_attempted"])
         return TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
     return None
 
