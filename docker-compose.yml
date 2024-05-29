@@ -37,8 +37,8 @@ services:
       - 3306
     # https://mariadb.com/kb/en/using-healthcheck-sh/
     healthcheck:
-      interval: 30s
-      retries: 3
+      interval: 10s
+      retries: 10
       test:
         [
           "CMD",
@@ -47,7 +47,7 @@ services:
           "--connect",
           "--innodb_initialized"
         ]
-      timeout: 30s
+      timeout: 90s
 
 volumes:
   dbdata:
