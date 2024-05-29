@@ -8,7 +8,7 @@ from fastapi import FastAPI
 # from toolhunt.db import init_db
 from tortoise.contrib.fastapi import RegisterTortoise
 
-from toolhunt.api import ping, tasks
+from toolhunt.api import ping, tasks, tools
 
 log = logging.getLogger("uvicorn")
 
@@ -35,6 +35,7 @@ def create_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
     app.include_router(ping.router, prefix=API_PREFIX)
     app.include_router(tasks.router, prefix=API_PREFIX, tags=["tasks"])
+    app.include_router(tools.router, prefix=API_PREFIX, tags=["tools"])
     return app
 
 

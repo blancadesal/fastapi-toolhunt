@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, field_validator
 from pydantic import Field as PydanticField
@@ -46,3 +46,8 @@ class TaskSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ToolNamesResponse(BaseModel):
+    allTitles: List[str]
+    titles: Dict[str, str]
