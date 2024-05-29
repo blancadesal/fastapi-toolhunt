@@ -37,6 +37,7 @@ class Task(models.Model):
     )
     field_name = fields.ForeignKeyField("models.Field", related_name="tasks")
     last_attempted = fields.DatetimeField(null=True)
+    times_attempted = fields.IntField(default=0)
     last_updated = fields.DatetimeField(auto_now=True)
 
     class Meta:

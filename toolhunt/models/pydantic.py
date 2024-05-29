@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, field_validator
-from pydantic import Field as PydanticField
 
 
 class FieldSchema(BaseModel):
@@ -39,11 +38,9 @@ class ToolSchema(BaseModel):
 
 
 class TaskSchema(BaseModel):
-    id: Optional[int] = PydanticField(
-        None, alias="id", description="The ID of the task"
-    )
-    tool: Optional[ToolSchema] = None
-    field: Optional[FieldSchema] = None
+    id: int
+    tool: ToolSchema
+    field: FieldSchema
 
     class Config:
         from_attributes = True

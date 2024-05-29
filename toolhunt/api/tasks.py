@@ -7,7 +7,7 @@ from tortoise.contrib.fastapi import HTTPNotFoundError
 from tortoise.expressions import Q
 
 from toolhunt.config import get_settings
-from toolhunt.models.pydantic import TaskSchema
+from toolhunt.models.pydantic import FieldSchema, TaskSchema, ToolSchema
 from toolhunt.models.tortoise import Task
 
 router = APIRouter()
@@ -43,26 +43,41 @@ async def get_tasks_from_db(
         await task.save(update_fields=["last_attempted", "times_attempted"])
 
     return [
-        TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
+        TaskSchema(
+            id=task.id,
+            tool=ToolSchema(
+                name=task.tool_name.name,
+                title=task.tool_name.title,
+                description=task.tool_name.description,
+                url=task.tool_name.url,
+            ),
+            field=FieldSchema(
+                name=task.field_name.name, description=task.field_name.description
+            ),
+        )
         for task in random_tasks
     ]
 
 
 async def get_task_from_db(task_id: int) -> Optional[TaskSchema]:
-    twenty_four_hours_ago = datetime.now() - timedelta(hours=24)
-    query = Task.filter(id=task_id)
-
-    if settings.environment != "dev":
-        query = query.filter(
-            Q(last_attempted__isnull=True) | Q(last_attempted__lt=twenty_four_hours_ago)
-        )
+    query = Task.filter(id=task_id).prefetch_related("tool_name", "field_name")
 
     task = await query.first()
     if task:
-        task.last_attempted = datetime.now()
         task.times_attempted += 1
-        await task.save(update_fields=["last_attempted", "times_attempted"])
-        return TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
+        await task.save(update_fields=["times_attempted"])
+        return TaskSchema(
+            id=task.id,
+            tool=ToolSchema(
+                name=task.tool_name.name,
+                title=task.tool_name.title,
+                description=task.tool_name.description,
+                url=task.tool_name.url,
+            ),
+            field=FieldSchema(
+                name=task.field_name.name, description=task.field_name.description
+            ),
+        )
     return None
 
 
