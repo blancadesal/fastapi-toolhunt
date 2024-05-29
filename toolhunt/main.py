@@ -23,10 +23,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         generate_schemas=False,
         add_exception_handlers=True,
     ):
-        # db connected
         yield
-        # app teardown
-    # db connections closed
+    # app teardown
 
 
 def create_app() -> FastAPI:

@@ -1,10 +1,10 @@
 import logging
 import os
 
-from tortoise import Tortoise, run_async
+from fastapi import FastAPI
+from tortoise.contrib.fastapi import RegisterTortoise
 
 log = logging.getLogger("uvicorn")
-
 
 TORTOISE_ORM = {
     "connections": {"default": os.getenv("DATABASE_URL")},
@@ -17,17 +17,11 @@ TORTOISE_ORM = {
 }
 
 
-async def generate_schema() -> None:
-    log.info("Initializing Tortoise...")
-
-    await Tortoise.init(
+def register_tortoise(app: FastAPI) -> RegisterTortoise:
+    return RegisterTortoise(
+        app,
         db_url=os.getenv("DATABASE_URL"),
-        modules={"models": ["models.tortoise"]},
+        modules={"models": ["toolhunt.models.tortoise"]},
+        generate_schemas=False,
+        add_exception_handlers=True,
     )
-    log.info("Generating database schema via Tortoise...")
-    await Tortoise.generate_schemas()
-    await Tortoise.close_connections()
-
-
-if __name__ == "__main__":
-    run_async(generate_schema())
