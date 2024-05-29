@@ -1,7 +1,7 @@
 import random
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from tortoise.contrib.fastapi import HTTPNotFoundError
 
 from toolhunt.models.pydantic import TaskSchema
@@ -11,8 +11,17 @@ router = APIRouter()
 
 
 # CRUD
-async def get_tasks_from_db() -> List[TaskSchema]:
-    tasks = await Task.all().prefetch_related("tool_name", "field_name")
+async def get_tasks_from_db(
+    field_name: Optional[str] = None, tool_name: Optional[str] = None
+) -> List[TaskSchema]:
+    query = Task.all().prefetch_related("tool_name", "field_name")
+
+    if field_name:
+        query = query.filter(field_name=field_name)
+    if tool_name:
+        query = query.filter(tool_name=tool_name)
+
+    tasks = await query
     random_tasks = random.sample(tasks, min(len(tasks), 10))
     return [
         TaskSchema(id=task.id, tool=task.tool_name, field=task.field_name)
@@ -37,8 +46,10 @@ async def get_task_from_db(task_id: int) -> Optional[TaskSchema]:
     response_model=List[TaskSchema],
     responses={404: {"model": HTTPNotFoundError}},
 )
-async def get_tasks():
-    tasks = await get_tasks_from_db()
+async def get_tasks(
+    field_name: Optional[str] = Query(None), tool_name: Optional[str] = Query(None)
+):
+    tasks = await get_tasks_from_db(field_name=field_name, tool_name=tool_name)
     if not tasks:
         raise HTTPException(status_code=404, detail="No tasks found")
     return tasks
