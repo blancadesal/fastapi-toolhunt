@@ -45,12 +45,12 @@ Before you begin, ensure you have the following installed on your machine:
 
    This will build the Docker images and start the containers defined in the `docker-compose.yml` file.
 
-4. **Initialize the Database**
+4. **Run the Database Migrations**
 
-   Initialize the database schema:
+   Run the database migrations:
 
    ```sh
-   make init-db
+   make migrate
    ```
 
 5. **Seed the Database**
