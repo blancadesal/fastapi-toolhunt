@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, field_validator
@@ -51,3 +52,14 @@ class TaskSchema(BaseModel):
 class ToolNamesResponse(BaseModel):
     allTitles: List[str]
     titles: Dict[str, str]
+
+
+class CompletedTaskSchema(BaseModel):
+    completed_date: datetime
+    field: str
+    tool_name: str
+    tool_title: str
+    user: str
+
+    class Config:
+        from_attributes = True
