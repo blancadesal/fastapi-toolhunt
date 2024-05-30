@@ -22,13 +22,13 @@ async def get_contributions(
         "completed_date", "field__name", "tool__name", "tool_title", "user"
     )
     contributions = [
-        {
-            "completed_date": result["completed_date"].strftime("%Y-%m-%dT%H:%M:%S"),
-            "field": result["field__name"],
-            "tool_name": result["tool__name"],
-            "tool_title": result["tool_title"],
-            "user": result["user"],
-        }
+        CompletedTaskSchema(
+            completed_date=result["completed_date"].strftime("%Y-%m-%dT%H:%M:%S"),
+            field=result["field__name"],
+            tool_name=result["tool__name"],
+            tool_title=result["tool_title"],
+            user=result["user"],
+        )
         for result in results
     ]
     return contributions
