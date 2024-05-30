@@ -103,12 +103,12 @@ async def get_tasks(
 
 
 @router.get(
-    "/tasks/{id}",
+    "/tasks/{task_id}",
     response_model=TaskSchema,
     responses={404: {"model": HTTPNotFoundError}},
 )
-async def get_task(id: int):
-    task = await get_task_from_db(id)
+async def get_task(task_id: int):
+    task = await get_task_from_db(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
