@@ -52,7 +52,10 @@ async def get_tasks_from_db(
                 url=task.tool_name.url,
             ),
             field=FieldSchema(
-                name=task.field_name.name, description=task.field_name.description
+                name=task.field_name.name,
+                description=task.field_name.description,
+                input_options=task.field_name.input_options,
+                pattern=task.field_name.pattern,
             ),
         )
         for task in random_tasks
@@ -75,7 +78,10 @@ async def get_task_from_db(task_id: int) -> Optional[TaskSchema]:
                 url=task.tool_name.url,
             ),
             field=FieldSchema(
-                name=task.field_name.name, description=task.field_name.description
+                name=task.field_name.name,
+                description=task.field_name.description,
+                input_options=task.field_name.input_options,
+                pattern=task.field_name.pattern,
             ),
         )
     return None
