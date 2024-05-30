@@ -21,7 +21,23 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(lifespan=lifespan)
+    app = FastAPI(
+        title="Toolhunt REST API",
+        version="1.0.0",
+        openapi_tags=[
+            {
+                "name": "contributions",
+                "description": "Get information about contributions made using Toolhunt.",
+            },
+            {
+                "name": "tasks",
+                "description": "Get incomplete tasks and submit data to Toolhub.",
+            },
+            {"name": "tools", "description": "Get information about tools."},
+        ],
+        lifespan=lifespan,
+    )
+    # routers
     app.include_router(ping.router, prefix=API_PREFIX)
     app.include_router(tasks.router, prefix=API_PREFIX, tags=["tasks"])
     app.include_router(tools.router, prefix=API_PREFIX, tags=["tools"])
