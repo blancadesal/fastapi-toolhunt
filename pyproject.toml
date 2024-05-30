@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "toolhunt"
+name = "Toolhunt REST API"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
@@ -15,6 +15,7 @@ asyncmy = "^0.2.9"
 tortoise-orm = "^0.21.0"
 aerich = "^0.7.2"
 pytest = "^8.2.1"
+toml = "^0.10.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.1"

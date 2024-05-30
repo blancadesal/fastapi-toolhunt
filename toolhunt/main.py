@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+import toml
 from fastapi import FastAPI
 
 from toolhunt.api import contributions, ping, tasks, tools
@@ -20,10 +21,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         yield
 
 
+def get_project_metadata():
+    with open("pyproject.toml", "r") as pyproject_file:
+        pyproject_data = toml.load(pyproject_file)
+        metadata = pyproject_data["tool"]["poetry"]
+        return metadata["name"], metadata["version"]
+
+
+title, version = get_project_metadata()
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="Toolhunt REST API",
-        version="1.0.0",
+        title=title,
+        version=version,
         openapi_tags=[
             {
                 "name": "contributions",
