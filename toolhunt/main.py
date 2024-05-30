@@ -1,12 +1,11 @@
 import logging
-import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from tortoise.contrib.fastapi import RegisterTortoise
 
 from toolhunt.api import contributions, ping, tasks, tools
+from toolhunt.db import register_tortoise
 
 log = logging.getLogger("uvicorn")
 
@@ -15,16 +14,8 @@ API_PREFIX = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    # app startup
-    async with RegisterTortoise(
-        app,
-        db_url=os.getenv("DATABASE_URL"),
-        modules={"models": ["toolhunt.models.tortoise"]},
-        generate_schemas=False,
-        add_exception_handlers=True,
-    ):
+    async with register_tortoise(app):
         yield
-    # app teardown
 
 
 def create_app() -> FastAPI:
