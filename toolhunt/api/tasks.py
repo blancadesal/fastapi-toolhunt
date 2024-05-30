@@ -10,7 +10,7 @@ from toolhunt.config import get_settings
 from toolhunt.models.pydantic import FieldSchema, TaskSchema, ToolSchema
 from toolhunt.models.tortoise import Task
 
-router = APIRouter()
+router = APIRouter(prefix="/tasks")
 
 settings = get_settings()
 
@@ -89,7 +89,7 @@ async def get_task_from_db(task_id: int) -> Optional[TaskSchema]:
 
 # Routes
 @router.get(
-    "/tasks",
+    "/",
     response_model=List[TaskSchema],
     responses={404: {"model": HTTPNotFoundError}},
 )
@@ -103,7 +103,7 @@ async def get_tasks(
 
 
 @router.get(
-    "/tasks/{task_id}",
+    "/{task_id}",
     response_model=TaskSchema,
     responses={404: {"model": HTTPNotFoundError}},
 )

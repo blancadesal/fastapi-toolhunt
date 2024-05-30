@@ -5,10 +5,10 @@ from fastapi import APIRouter, Query
 from toolhunt.models.pydantic import CompletedTaskSchema
 from toolhunt.models.tortoise import CompletedTask
 
-router = APIRouter()
+router = APIRouter(prefix="/contributions")
 
 
-@router.get("/contributions", response_model=List[CompletedTaskSchema])
+@router.get("/", response_model=List[CompletedTaskSchema])
 async def get_contributions(
     limit: Optional[int] = Query(
         None, description="Limit the number of contributions returned"
