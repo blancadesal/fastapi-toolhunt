@@ -14,7 +14,9 @@ API_PREFIX = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    log.info("Starting up...")
     async with register_tortoise(app):
+        log.info("Database registered.")
         yield
 
 
